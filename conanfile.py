@@ -30,11 +30,15 @@ class LibnameConan(ConanFile):
         "shared": [True, False], 
         "fPIC": [True, False],
         "build_aeron_driver": [True, False],
+        "build_tests": [True, False],
+        "build_samples": [True, False],
     }
     default_options = (
         "shared=False", 
         "fPIC=True",
         "build_aeron_driver=False",
+        "build_tests=False",
+        "build_samples=False",
     )
 
     # Custom attributes for Bincrafters recipe conventions
@@ -66,6 +70,8 @@ class LibnameConan(ConanFile):
         cmake = CMake(self)
         
         cmake.definitions["BUILD_AERON_DRIVER"] = self.options.build_aeron_driver
+        cmake.definitions["AERON_TESTS"] = self.options.build_tests
+        cmake.definitions["AERON_BUILD_SAMPLES"] = self.options.build_samples
 
         if self.settings.os != 'Windows':
             cmake.definitions['CMAKE_POSITION_INDEPENDENT_CODE'] = self.options.fPIC
@@ -76,6 +82,12 @@ class LibnameConan(ConanFile):
     def build(self):
         cmake = self.configure_cmake()
         cmake.build()
+
+        if self.options.build_tests:
+            self.output.info("Running {} tests".format(self.name))
+            source_path = os.path.join(self.build_subfolder, self.source_subfolder)
+            with tools.chdir(source_path):
+                self.run("ctest")
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self.source_subfolder)
@@ -96,6 +108,6 @@ class LibnameConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
         self.cpp_info.includedirs.append("include/{}".format(self.name))
-        
+
         self.output.info("{} requires C++11. Enforcing for downstream targets...".format(self.name))
         self.cpp_info.cppflags.append("-std=c++11")
