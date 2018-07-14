@@ -2,18 +2,20 @@
 # -*- coding: utf-8 -*-
 
 from conans import ConanFile, CMake, tools
+from conans.errors import ConanException
 import os
-
+import shutil
 
 class LibnameConan(ConanFile):
-    name = "libname"
-    version = "0.0.0"
-    description = "Keep it short"
-    url = "https://github.com/bincrafters/conan-libname"
-    homepage = "https://github.com/original_author/original_lib"
-    author = "Bincrafters <bincrafters@gmail.com>"
+    name = "aeron"
+    version = "1.10.1"
+    description =   "Efficient reliable UDP unicast, \
+                    UDP multicast, and IPC message transport"
+    url = "https://github.com/real-logic/aeron"
+    homepage = "https://github.com/real-logic/aeron/wiki"
+    author = "helmesjo <helmesjo@gmail.com>"
     # Indicates License type of the packaged library
-    license = "MIT"
+    license = "Apache License 2.0"
 
     # Packages the license for the conanfile.py
     exports = ["LICENSE.md"]
@@ -24,8 +26,16 @@ class LibnameConan(ConanFile):
 
     # Options may need to change depending on the packaged library.
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = "shared=False", "fPIC=True"
+    options = {
+        "shared": [True, False], 
+        "fPIC": [True, False],
+        "build_aeron_driver": [True, False],
+    }
+    default_options = (
+        "shared=False", 
+        "fPIC=True",
+        "build_aeron_driver=False",
+    )
 
     # Custom attributes for Bincrafters recipe conventions
     source_subfolder = "source_subfolder"
@@ -37,7 +47,6 @@ class LibnameConan(ConanFile):
 
 
     requires = (
-        "OpenSSL/[>=1.0.2l]@conan/stable",
         "zlib/1.2.11@conan/stable"
     )
 
@@ -46,8 +55,8 @@ class LibnameConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        source_url = "https://github.com/libauthor/libname"
-        tools.get("{0}/archive/v{1}.tar.gz".format(source_url, self.version))
+        source_url = "https://github.com/real-logic/aeron"
+        tools.get("{0}/archive/{1}.tar.gz".format(source_url, self.version))
         extracted_dir = self.name + "-" + self.version
 
         #Rename to "source_subfolder" is a convention to simplify later steps
@@ -55,9 +64,12 @@ class LibnameConan(ConanFile):
 
     def configure_cmake(self):
         cmake = CMake(self)
-        cmake.definitions["BUILD_TESTS"] = False # example
+        
+        cmake.definitions["BUILD_AERON_DRIVER"] = self.options.build_aeron_driver
+
         if self.settings.os != 'Windows':
             cmake.definitions['CMAKE_POSITION_INDEPENDENT_CODE'] = self.options.fPIC
+        
         cmake.configure(build_folder=self.build_subfolder)
         return cmake
 
@@ -69,15 +81,21 @@ class LibnameConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self.source_subfolder)
         cmake = self.configure_cmake()
         cmake.install()
-        # If the CMakeLists.txt has a proper install method, the steps below may be redundant
-        # If so, you can just remove the lines below
-        include_folder = os.path.join(self.source_subfolder, "include")
-        self.copy(pattern="*", dst="include", src=include_folder)
-        self.copy(pattern="*.dll", dst="bin", keep_path=False)
-        self.copy(pattern="*.lib", dst="lib", keep_path=False)
-        self.copy(pattern="*.a", dst="lib", keep_path=False)
-        self.copy(pattern="*.so*", dst="lib", keep_path=False)
-        self.copy(pattern="*.dylib", dst="lib", keep_path=False)
+
+        # Files install straight to './include', but we want './include/aeron'
+        fileDir = self.package_folder
+        old_include_folder = os.path.join(fileDir, "include/")
+        new_include_folder = os.path.join(fileDir, "include/{}/".format(self.name))
+        tools.rmdir(new_include_folder)
+        tools.mkdir(new_include_folder)
+        files = os.listdir(old_include_folder)
+        with tools.chdir(fileDir):
+            for f in files:
+                shutil.move(old_include_folder + f, new_include_folder)
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.includedirs.append("include/{}".format(self.name))
+        
+        self.output.info("{} requires C++11. Enforcing for downstream targets...".format(self.name))
+        self.cpp_info.cppflags.append("-std=c++11")

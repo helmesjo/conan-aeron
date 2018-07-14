@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <aeron/Aeron.h>
 
 int main()
 {
