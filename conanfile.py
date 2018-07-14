@@ -58,6 +58,9 @@ class LibnameConan(ConanFile):
         if self.settings.os == 'Windows':
             del self.options.fPIC
 
+        if self.settings.compiler == "Visual Studio" and self.settings.arch != "x86_64":
+            raise ConanException("{} currently only supports 64-bit builds on Windows".format(self.name))
+
     def source(self):
         source_url = "https://github.com/real-logic/aeron"
         tools.get("{0}/archive/{1}.tar.gz".format(source_url, self.version))
