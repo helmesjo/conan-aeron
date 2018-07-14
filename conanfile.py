@@ -66,6 +66,11 @@ class LibnameConan(ConanFile):
         #Rename to "source_subfolder" is a convention to simplify later steps
         os.rename(extracted_dir, self.source_subfolder)
 
+        # Replace fragile "if 64 bit check"
+        cmakelist_file = os.path.join(self.source_subfolder, "CMakeLists.txt")
+        print cmakelist_file
+        tools.replace_in_file(file_path=cmakelist_file, search="CMAKE_SIZEOF_VOID_P EQUAL 8", replace="CMAKE_CL_64")
+
     def configure_cmake(self):
         cmake = CMake(self)
         
