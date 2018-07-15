@@ -75,7 +75,6 @@ class LibnameConan(ConanFile):
 
         # Replace fragile "if 64 bit check"
         cmakelist_file = os.path.join(self.source_subfolder, "CMakeLists.txt")
-        print cmakelist_file
         tools.replace_in_file(file_path=cmakelist_file, search="CMAKE_SIZEOF_VOID_P EQUAL 8", replace="CMAKE_CL_64")
 
     def configure_cmake(self):
