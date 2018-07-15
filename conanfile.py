@@ -72,7 +72,7 @@ class LibnameConan(ConanFile):
 
     def requirements(self):
         if self.settings.os == "Windows":
-            self.requires.add("pthreads4w/2.9.1@bincrafters/stable", private=True)
+            self.requires.add("pthreads4w/2.9.1@bincrafters/stable")
 
     def config_options(self):
         if self.settings.os == 'Windows':
