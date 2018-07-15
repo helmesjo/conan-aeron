@@ -5,6 +5,22 @@ from conans import ConanFile, CMake, tools
 from conans.errors import ConanException
 import os
 import shutil
+import re
+
+def replace(file, pattern, subst):
+    # Read contents from file as a single string
+    file_handle = open(file, 'r')
+    file_string = file_handle.read()
+    file_handle.close()
+
+    # Use RE package to allow for replacement (also allowing for (multiline) REGEX)
+    file_string = (re.sub(pattern, "{} # <-- Line edited by conan package -->".format(subst), file_string))
+
+    # Write contents to file.
+    # Using mode 'w' truncates the file.
+    file_handle = open(file, 'w')
+    file_handle.write(file_string)
+    file_handle.close()
 
 class LibnameConan(ConanFile):
     name = "aeron"
@@ -54,10 +70,6 @@ class LibnameConan(ConanFile):
         "zlib/1.2.11@conan/stable"
     )
 
-    def requirements(self):
-        if self.settings.os == "Windows":
-            self.requires.add("pthreads4w/2.9.1@bincrafters/stable", private=True)
-
     def config_options(self):
         if self.settings.os == 'Windows':
             del self.options.fPIC
@@ -70,12 +82,17 @@ class LibnameConan(ConanFile):
         tools.get("{0}/archive/{1}.tar.gz".format(source_url, self.version))
         extracted_dir = self.name + "-" + self.version
 
-        #Rename to "source_subfolder" is a convention to simplify later steps
+        # Rename to "source_subfolder" is a convention to simplify later steps
         os.rename(extracted_dir, self.source_subfolder)
 
         # Replace fragile "if 64 bit check"
-        cmakelist_file = os.path.join(self.source_subfolder, "CMakeLists.txt")
-        tools.replace_in_file(file_path=cmakelist_file, search="CMAKE_SIZEOF_VOID_P EQUAL 8", replace="CMAKE_CL_64")
+        root_cmakelist_file = os.path.join(self.source_subfolder, "CMakeLists.txt")
+        tools.replace_in_file(file_path=root_cmakelist_file, search="CMAKE_SIZEOF_VOID_P EQUAL 8", replace="CMAKE_CL_64")
+
+        # Comment out pthread-references not available in windows/vs (until fixed in repo)
+        if self.settings.compiler == "Visual Studio":
+            bad_cpp_file = os.path.join(self.source_subfolder ,"aeron-client/src/main/cpp/concurrent/AgentRunner.h")
+            replace(bad_cpp_file, r"(pthread_setname_np.*)", r"// \1")
 
     def configure_cmake(self):
         cmake = CMake(self)
