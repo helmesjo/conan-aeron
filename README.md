@@ -1,6 +1,6 @@
 [![Download](https://api.bintray.com/packages/helmesjo/public-conan/aeron%3Ahelmesjo/images/download.svg) ](https://bintray.com/helmesjo/public-conan/aeron%3Ahelmesjo/_latestVersion)
-[![Build Status](https://travis-ci.org/helmesjo/conan-aeron.svg?branch=stable%2F1.10.1)](https://travis-ci.org/helmesjo/conan-aeron)
-[![Build status](https://ci.appveyor.com/api/projects/status/github/helmesjo/conan-aeron?branch=stable%2F1.10.1&svg=true)](https://ci.appveyor.com/project/helmesjo/conan-aeron)
+[![Build Status](https://travis-ci.org/helmesjo/conan-aeron.svg?branch=stable%2F1.11.1)](https://travis-ci.org/helmesjo/conan-aeron)
+[![Build status](https://ci.appveyor.com/api/projects/status/github/helmesjo/conan-aeron?branch=stable%2F1.11.1&svg=true)](https://ci.appveyor.com/project/helmesjo/conan-aeron)
 
 [Conan.io](https://conan.io) package recipe for [*aeron*](https://github.com/real-logic/aeron/wiki).
 
@@ -12,14 +12,14 @@ The packages generated with this **conanfile** can be found on [Bintray](https:/
 
 ### Basic setup
 
-    $ conan install aeron/1.10.1@helmesjo/stable
+    $ conan install aeron/1.11.1@helmesjo/stable
 
 ### Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
 
     [requires]
-    aeron/1.10.1@helmesjo/stable
+    aeron/1.11.1@helmesjo/stable
 
     [generators]
     cmake
@@ -54,7 +54,7 @@ The following command both runs all the steps of the conan file, and publishes t
 
 ## Upload
 
-    $ conan upload aeron/1.10.1@helmesjo/stable --all -r helmesjo
+    $ conan upload aeron/1.11.1@helmesjo/stable --all -r helmesjo
 
 
 ## Conan Recipe License
@@ -62,4 +62,4 @@ The following command both runs all the steps of the conan file, and publishes t
 NOTE: The conan recipe license applies only to the files of this recipe, which can be used to build and package aeron.
 It does *not* in any way apply or is related to the actual software being packaged.
 
-[MIT](https://github.com/helmesjo/conan-aeron.git/blob/testing/1.10.1/LICENSE)
+[MIT](https://github.com/helmesjo/conan-aeron.git/blob/testing/1.11.1/LICENSE)
