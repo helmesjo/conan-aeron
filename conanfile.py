@@ -24,7 +24,7 @@ def replace(file, pattern, subst):
 
 class LibnameConan(ConanFile):
     name = "aeron"
-    version = "1.11.1"
+    version = "1.14.0"
     description =   "Efficient reliable UDP unicast, \
                     UDP multicast, and IPC message transport"
     url = "https://github.com/real-logic/aeron"
@@ -89,18 +89,11 @@ class LibnameConan(ConanFile):
         # Rename to "source_subfolder" is a convention to simplify later steps
         os.rename(extracted_dir, self.source_subfolder)
 
-        # Replace fragile "if 64 bit check"
-        root_cmakelist_file = os.path.join(self.source_subfolder, "CMakeLists.txt")
-        tools.replace_in_file(file_path=root_cmakelist_file, search="CMAKE_SIZEOF_VOID_P EQUAL 8", replace="CMAKE_CL_64")
-
-        # Comment out pthread-references not available in windows/vs (until fixed in repo)
-        if self.settings.compiler == "Visual Studio":
-            bad_cpp_file = os.path.join(self.source_subfolder ,"aeron-client/src/main/cpp/concurrent/AgentRunner.h")
-            replace(bad_cpp_file, r"(pthread_setname_np.*)", r"// \1")
-
     def configure_cmake(self):
         cmake = CMake(self)
         
+        cmake.definitions["AERON_INSTALL_TARGETS"] = True
+
         cmake.definitions["BUILD_AERON_DRIVER"] = self.options.build_aeron_driver
         cmake.definitions["AERON_TESTS"] = self.options.build_tests
         cmake.definitions["AERON_BUILD_SAMPLES"] = self.options.build_samples
