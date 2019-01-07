@@ -136,3 +136,6 @@ class LibnameConan(ConanFile):
 
         self.output.info("{} requires C++11. Enforcing for downstream targets...".format(self.name))
         self.cpp_info.cppflags.append("-std=c++11")
+        
+        # See: https://github.com/real-logic/aeron/blob/23f9ef8c6bd25955c3a64454f4e5d9c4a86c8d5a/CMakeLists.txt#L213
+        self.cpp_info.defines.append("_ENABLE_EXTENDED_ALIGNED_STORAGE")
