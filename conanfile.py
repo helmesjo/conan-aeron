@@ -24,7 +24,7 @@ def replace(file, pattern, subst):
 
 class LibnameConan(ConanFile):
     name = "aeron"
-    version = "1.21.0"
+    version = "1.27.0"
     description =   "Efficient reliable UDP unicast, \
                     UDP multicast, and IPC message transport"
     url = "https://github.com/real-logic/aeron"
