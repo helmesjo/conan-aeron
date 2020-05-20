@@ -49,26 +49,19 @@ class LibnameConan(ConanFile):
         "build_tests": [True, False],
         "build_samples": [True, False],
     }
-    default_options = (
-        "shared=False", 
-        "fPIC=True",
-        "build_aeron_driver=False",
-        "build_tests=False",
-        "build_samples=False",
-    )
+    default_options = {
+        "shared": False, 
+        "fPIC": True,
+        "build_aeron_driver": True,
+        "build_tests": False,
+        "build_samples": False
+    }
 
     # Custom attributes for Bincrafters recipe conventions
     source_subfolder = "source_subfolder"
     build_subfolder = "build_subfolder"
 
-    # Use version ranges for dependencies unless there's a reason not to
-    # Update 2/9/18 - Per conan team, ranges are slow to resolve.
-    # So, with libs like zlib, updates are very rare, so we now use static version
-
-
-    requires = (
-        "zlib/1.2.11@conan/stable"
-    )
+    requires = ()
 
     def requirements(self):
         if self.settings.os == "Windows":
