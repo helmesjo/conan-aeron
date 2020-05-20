@@ -65,14 +65,16 @@ class LibnameConan(ConanFile):
 
     def requirements(self):
         if self.settings.os == "Windows":
-            self.requires.add("pthreads4w/2.9.1@bincrafters/stable")
+            self.requires.add("pthreads4w/3.0.0")
 
     def config_options(self):
         if self.settings.os == 'Windows':
             del self.options.fPIC
-            self.options.build_aeron_driver = False # Still experimental on windows: https://github.com/real-logic/aeron#c-media-driver
+            # C-Driver still experimental on Windows: https://github.com/real-logic/aeron#c-media-driver
+            self.options.build_aeron_driver = False
 
         if self.settings.compiler == "Visual Studio" and self.settings.arch != "x86_64":
+            # https://github.com/real-logic/aeron#c-build
             raise ConanException("{} currently only supports 64-bit builds on Windows".format(self.name))
 
     def source(self):
