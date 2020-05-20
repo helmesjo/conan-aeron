@@ -70,6 +70,7 @@ class LibnameConan(ConanFile):
     def config_options(self):
         if self.settings.os == 'Windows':
             del self.options.fPIC
+            self.options.build_aeron_driver = False # Still experimental on windows: https://github.com/real-logic/aeron#c-media-driver
 
         if self.settings.compiler == "Visual Studio" and self.settings.arch != "x86_64":
             raise ConanException("{} currently only supports 64-bit builds on Windows".format(self.name))
